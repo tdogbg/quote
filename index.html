@@ -1,0 +1,1328 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Inspire Daily - Premium Quote Generator</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            background: #0a0e27;
+            padding: 20px;
+            position: relative;
+            overflow-x: hidden;
+        }
+
+        .background-gradient {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: radial-gradient(ellipse at top, #1a1f3a 0%, #0a0e27 50%);
+            z-index: 0;
+        }
+
+        .particles {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 0;
+        }
+
+        .particle {
+            position: absolute;
+            background: rgba(255, 255, 255, 0.03);
+            border-radius: 50%;
+            animation: float linear infinite;
+        }
+
+        @keyframes float {
+            0% {
+                transform: translateY(100vh) rotate(0deg);
+                opacity: 0;
+            }
+            10% {
+                opacity: 1;
+            }
+            90% {
+                opacity: 1;
+            }
+            100% {
+                transform: translateY(-100px) rotate(360deg);
+                opacity: 0;
+            }
+        }
+
+        .container {
+            max-width: 1000px;
+            width: 100%;
+            margin: 0 auto;
+            position: relative;
+            z-index: 1;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 40px;
+            animation: fadeInDown 0.8s ease;
+        }
+
+        .logo {
+            font-size: 3.5rem;
+            font-weight: 800;
+            background: linear-gradient(135deg, #ff6b9d 0%, #ffa06b 50%, #ffd56b 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 8px;
+            letter-spacing: -1px;
+        }
+
+        .tagline {
+            color: rgba(255, 255, 255, 0.5);
+            font-size: 1rem;
+            font-weight: 400;
+            letter-spacing: 4px;
+            text-transform: uppercase;
+        }
+
+        .stats-bar {
+            display: flex;
+            justify-content: center;
+            gap: 30px;
+            margin-bottom: 30px;
+            animation: fadeIn 1s ease;
+        }
+
+        .stat {
+            text-align: center;
+            padding: 15px 25px;
+            background: rgba(255, 255, 255, 0.03);
+            backdrop-filter: blur(10px);
+            border-radius: 15px;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        .stat-value {
+            font-size: 1.8rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, #ff6b9d 0%, #ffa06b 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .stat-label {
+            font-size: 0.75rem;
+            color: rgba(255, 255, 255, 0.4);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-top: 5px;
+        }
+
+        .category-selector {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 30px;
+            flex-wrap: wrap;
+            justify-content: center;
+            animation: fadeIn 1s ease;
+        }
+
+        .category-btn {
+            padding: 10px 20px;
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 25px;
+            color: rgba(255, 255, 255, 0.6);
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            font-size: 0.85rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .category-btn:hover {
+            background: rgba(255, 255, 255, 0.08);
+            color: rgba(255, 255, 255, 0.9);
+            transform: translateY(-2px);
+            border-color: rgba(255, 255, 255, 0.2);
+        }
+
+        .category-btn.active {
+            background: linear-gradient(135deg, #ff6b9d 0%, #ffa06b 100%);
+            color: white;
+            border-color: transparent;
+            box-shadow: 0 8px 25px rgba(255, 107, 157, 0.3);
+        }
+
+        .quote-box {
+            background: rgba(255, 255, 255, 0.03);
+            backdrop-filter: blur(30px);
+            border-radius: 30px;
+            padding: 60px 50px;
+            box-shadow: 0 25px 70px rgba(0, 0, 0, 0.3),
+                        inset 0 1px 0 rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .quote-box::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.03), transparent);
+            transition: left 0.6s ease;
+        }
+
+        .quote-box:hover::before {
+            left: 100%;
+        }
+
+        .quote-box:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 30px 80px rgba(0, 0, 0, 0.4),
+                        inset 0 1px 0 rgba(255, 255, 255, 0.15);
+        }
+
+        .quote-content {
+            min-height: 200px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            position: relative;
+            z-index: 1;
+        }
+
+        .quote-text {
+            font-size: 1.8rem;
+            color: #ffffff;
+            line-height: 1.8;
+            margin-bottom: 30px;
+            text-align: center;
+            font-weight: 400;
+            opacity: 0;
+            animation: fadeIn 0.8s ease forwards;
+            letter-spacing: 0.3px;
+        }
+
+        .quote-text.typing {
+            opacity: 1;
+        }
+
+        .quote-author {
+            font-size: 1.1rem;
+            color: rgba(255, 255, 255, 0.7);
+            text-align: right;
+            font-weight: 600;
+            opacity: 0;
+            animation: fadeIn 0.8s ease 0.2s forwards;
+            letter-spacing: 0.5px;
+        }
+
+        .quote-author::before {
+            content: '— ';
+            color: rgba(255, 255, 255, 0.4);
+        }
+
+        .action-buttons {
+            display: flex;
+            gap: 12px;
+            margin-top: 35px;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        .btn {
+            padding: 14px 30px;
+            font-size: 0.95rem;
+            border: none;
+            border-radius: 50px;
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #ff6b9d 0%, #ffa06b 100%);
+            color: white;
+            box-shadow: 0 8px 25px rgba(255, 107, 157, 0.3);
+        }
+
+        .btn-primary:hover {
+            transform: scale(1.05) translateY(-2px);
+            box-shadow: 0 12px 35px rgba(255, 107, 157, 0.4);
+        }
+
+        .btn-secondary {
+            background: rgba(255, 255, 255, 0.05);
+            color: white;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .btn-secondary:hover {
+            background: rgba(255, 255, 255, 0.1);
+            transform: scale(1.05) translateY(-2px);
+            border-color: rgba(255, 255, 255, 0.2);
+        }
+
+        .btn:active {
+            transform: scale(0.98);
+        }
+
+        .btn-icon {
+            padding: 14px;
+            width: 48px;
+            height: 48px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+        }
+
+        .icon {
+            width: 20px;
+            height: 20px;
+            fill: currentColor;
+        }
+
+        .loading {
+            opacity: 0.5;
+            pointer-events: none;
+        }
+
+        .notification {
+            position: fixed;
+            top: 30px;
+            right: 30px;
+            background: rgba(10, 14, 39, 0.95);
+            backdrop-filter: blur(20px);
+            color: white;
+            padding: 18px 28px;
+            border-radius: 15px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            opacity: 0;
+            transform: translateX(400px);
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            font-weight: 600;
+            z-index: 1000;
+        }
+
+        .notification.show {
+            opacity: 1;
+            transform: translateX(0);
+        }
+
+        .history-panel {
+            margin-top: 40px;
+            animation: fadeIn 1.2s ease;
+        }
+
+        .history-title {
+            color: rgba(255, 255, 255, 0.7);
+            font-size: 1.1rem;
+            font-weight: 600;
+            margin-bottom: 20px;
+            text-align: center;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+        }
+
+        .history-items {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 15px;
+            max-height: 400px;
+            overflow-y: auto;
+            padding: 10px;
+        }
+
+        .history-items::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        .history-items::-webkit-scrollbar-track {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 10px;
+        }
+
+        .history-items::-webkit-scrollbar-thumb {
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 10px;
+        }
+
+        .history-item {
+            background: rgba(255, 255, 255, 0.03);
+            backdrop-filter: blur(10px);
+            padding: 20px;
+            border-radius: 15px;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+        }
+
+        .history-item:hover {
+            background: rgba(255, 255, 255, 0.05);
+            transform: translateY(-2px);
+            border-color: rgba(255, 255, 255, 0.1);
+        }
+
+        .history-item.favorited::after {
+            content: '❤️';
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            font-size: 1.2rem;
+        }
+
+        .history-quote {
+            color: rgba(255, 255, 255, 0.8);
+            font-size: 0.9rem;
+            line-height: 1.6;
+            margin-bottom: 10px;
+        }
+
+        .history-author {
+            color: rgba(255, 255, 255, 0.5);
+            font-size: 0.8rem;
+            font-weight: 600;
+        }
+
+        .share-menu {
+            position: fixed;
+            background: rgba(10, 14, 39, 0.98);
+            backdrop-filter: blur(20px);
+            border-radius: 20px;
+            padding: 20px;
+            box-shadow: 0 15px 50px rgba(0, 0, 0, 0.5);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            z-index: 2000;
+            opacity: 0;
+            transform: scale(0.9);
+            pointer-events: none;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .share-menu.show {
+            opacity: 1;
+            transform: scale(1);
+            pointer-events: all;
+        }
+
+        .share-menu-title {
+            color: rgba(255, 255, 255, 0.8);
+            font-size: 0.9rem;
+            font-weight: 600;
+            margin-bottom: 15px;
+            text-align: center;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .share-options {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 10px;
+        }
+
+        .share-option {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 8px;
+            padding: 15px 10px;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 12px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        .share-option:hover {
+            background: rgba(255, 255, 255, 0.1);
+            transform: translateY(-2px);
+            border-color: rgba(255, 255, 255, 0.15);
+        }
+
+        .share-option-icon {
+            font-size: 2rem;
+        }
+
+        .share-option-label {
+            color: rgba(255, 255, 255, 0.7);
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+
+        .shortcuts-panel {
+            position: fixed;
+            right: 30px;
+            top: 50%;
+            transform: translateY(-50%);
+            background: rgba(10, 14, 39, 0.95);
+            backdrop-filter: blur(20px);
+            border-radius: 15px;
+            padding: 20px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            z-index: 1000;
+            opacity: 0;
+            transform: translateY(-50%) translateX(20px);
+            pointer-events: none;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .shortcuts-panel.show {
+            opacity: 1;
+            transform: translateY(-50%) translateX(0);
+            pointer-events: all;
+        }
+
+        .shortcuts-title {
+            color: rgba(255, 255, 255, 0.8);
+            font-size: 0.85rem;
+            font-weight: 700;
+            margin-bottom: 15px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            text-align: center;
+        }
+
+        .shortcut-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 15px;
+            padding: 8px 0;
+            color: rgba(255, 255, 255, 0.6);
+            font-size: 0.85rem;
+        }
+
+        .shortcut-key {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 4px 10px;
+            border-radius: 6px;
+            font-weight: 700;
+            color: rgba(255, 255, 255, 0.9);
+            font-family: monospace;
+            border: 1px solid rgba(255, 255, 255, 0.15);
+        }
+
+        .shortcuts-toggle {
+            position: fixed;
+            right: 30px;
+            top: 30px;
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            color: rgba(255, 255, 255, 0.7);
+            padding: 10px 15px;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 0.85rem;
+            font-weight: 600;
+            z-index: 999;
+        }
+
+        .shortcuts-toggle:hover {
+            background: rgba(255, 255, 255, 0.1);
+            color: rgba(255, 255, 255, 0.9);
+            border-color: rgba(255, 255, 255, 0.2);
+        }
+
+        @media (max-width: 768px) {
+            .shortcuts-panel {
+                display: none;
+            }
+
+            .shortcuts-toggle {
+                display: none;
+            }
+
+            .share-options {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+
+        .footer {
+            margin-top: 60px;
+            text-align: center;
+            color: rgba(255, 255, 255, 0.3);
+            font-size: 0.85rem;
+            line-height: 1.8;
+            animation: fadeIn 1.5s ease;
+            padding-bottom: 30px;
+        }
+
+        .copyright {
+            font-weight: 600;
+            color: rgba(255, 255, 255, 0.5);
+            margin-bottom: 5px;
+        }
+
+        .legal-joke {
+            font-style: italic;
+            color: rgba(255, 255, 255, 0.25);
+            font-size: 0.75rem;
+        }
+
+        .theme-indicator {
+            position: fixed;
+            bottom: 30px;
+            left: 30px;
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #ff6b9d 0%, #ffa06b 100%);
+            box-shadow: 0 8px 25px rgba(255, 107, 157, 0.3);
+            border: 3px solid rgba(255, 255, 255, 0.1);
+            animation: pulse 2s ease-in-out infinite;
+            z-index: 10;
+        }
+
+        @keyframes pulse {
+            0%, 100% {
+                transform: scale(1);
+                box-shadow: 0 8px 25px rgba(255, 107, 157, 0.3);
+            }
+            50% {
+                transform: scale(1.05);
+                box-shadow: 0 12px 35px rgba(255, 107, 157, 0.5);
+            }
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes fadeInDown {
+            from {
+                opacity: 0;
+                transform: translateY(-30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes fadeOut {
+            from {
+                opacity: 1;
+                transform: translateY(0);
+            }
+            to {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+        }
+
+        .fade-out {
+            animation: fadeOut 0.4s ease forwards;
+        }
+
+        @media (max-width: 768px) {
+            .logo {
+                font-size: 2.5rem;
+            }
+
+            .tagline {
+                font-size: 0.85rem;
+                letter-spacing: 3px;
+            }
+
+            .stats-bar {
+                gap: 15px;
+            }
+
+            .stat {
+                padding: 12px 20px;
+            }
+
+            .stat-value {
+                font-size: 1.5rem;
+            }
+
+            .quote-box {
+                padding: 40px 30px;
+            }
+
+            .quote-text {
+                font-size: 1.4rem;
+            }
+
+            .quote-author {
+                font-size: 1rem;
+            }
+
+            .btn {
+                padding: 12px 25px;
+                font-size: 0.85rem;
+            }
+
+            .category-btn {
+                font-size: 0.75rem;
+                padding: 8px 16px;
+            }
+
+            .history-items {
+                grid-template-columns: 1fr;
+            }
+
+            .theme-indicator {
+                width: 50px;
+                height: 50px;
+                bottom: 20px;
+                left: 20px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .logo {
+                font-size: 2rem;
+            }
+
+            .tagline {
+                font-size: 0.75rem;
+                letter-spacing: 2px;
+            }
+
+            .stats-bar {
+                flex-wrap: wrap;
+                gap: 10px;
+            }
+
+            .stat {
+                flex: 1;
+                min-width: 100px;
+            }
+
+            .quote-text {
+                font-size: 1.2rem;
+            }
+
+            .action-buttons {
+                width: 100%;
+            }
+
+            .btn:not(.btn-icon) {
+                flex: 1;
+                min-width: 120px;
+            }
+
+            .category-selector {
+                gap: 8px;
+            }
+
+            .category-btn {
+                font-size: 0.7rem;
+                padding: 8px 14px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="background-gradient"></div>
+    <div class="particles" id="particles"></div>
+    <div class="theme-indicator"></div>
+    
+    <button class="shortcuts-toggle" id="shortcutsToggle">⌨️ Shortcuts</button>
+
+    <div class="shortcuts-panel" id="shortcutsPanel">
+        <div class="shortcuts-title">Keyboard Shortcuts</div>
+        <div class="shortcut-item">
+            <span>New Quote</span>
+            <span class="shortcut-key">N</span>
+        </div>
+        <div class="shortcut-item">
+            <span>Copy Quote</span>
+            <span class="shortcut-key">C</span>
+        </div>
+        <div class="shortcut-item">
+            <span>Favorite</span>
+            <span class="shortcut-key">F</span>
+        </div>
+        <div class="shortcut-item">
+            <span>Share</span>
+            <span class="shortcut-key">S</span>
+        </div>
+    </div>
+
+    <div class="share-menu" id="shareMenu">
+        <div class="share-menu-title">Share Quote</div>
+        <div class="share-options">
+            <div class="share-option" data-platform="twitter">
+                <div class="share-option-icon">𝕏</div>
+                <div class="share-option-label">Twitter</div>
+            </div>
+            <div class="share-option" data-platform="facebook">
+                <div class="share-option-icon">📘</div>
+                <div class="share-option-label">Facebook</div>
+            </div>
+            <div class="share-option" data-platform="linkedin">
+                <div class="share-option-icon">💼</div>
+                <div class="share-option-label">LinkedIn</div>
+            </div>
+            <div class="share-option" data-platform="whatsapp">
+                <div class="share-option-icon">💬</div>
+                <div class="share-option-label">WhatsApp</div>
+            </div>
+            <div class="share-option" data-platform="telegram">
+                <div class="share-option-icon">✈️</div>
+                <div class="share-option-label">Telegram</div>
+            </div>
+            <div class="share-option" data-platform="reddit">
+                <div class="share-option-icon">🤖</div>
+                <div class="share-option-label">Reddit</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="container">
+        <div class="header">
+            <div class="logo">Inspire Daily</div>
+            <div class="tagline">Elevate Your Mindset</div>
+        </div>
+
+        <div class="stats-bar">
+            <div class="stat">
+                <div class="stat-value" id="streakCount">0</div>
+                <div class="stat-label">Day Streak</div>
+            </div>
+            <div class="stat">
+                <div class="stat-value" id="quoteCount">0</div>
+                <div class="stat-label">Quotes Read</div>
+            </div>
+            <div class="stat">
+                <div class="stat-value" id="favoriteCount">0</div>
+                <div class="stat-label">Favorites</div>
+            </div>
+        </div>
+
+        <div class="category-selector">
+            <button class="category-btn active" data-tag="all">All</button>
+            <button class="category-btn" data-tag="motivation">Motivation</button>
+            <button class="category-btn" data-tag="love">Love</button>
+            <button class="category-btn" data-tag="life">Life</button>
+            <button class="category-btn" data-tag="success">Success</button>
+            <button class="category-btn" data-tag="wisdom">Wisdom</button>
+            <button class="category-btn" data-tag="funny">Humor</button>
+        </div>
+
+        <div class="quote-box">
+            <div class="quote-content">
+                <div class="quote-text" id="quote">Loading your daily inspiration...</div>
+                <div class="quote-author" id="author"></div>
+            </div>
+            <div class="action-buttons">
+                <button class="btn btn-primary" id="newQuoteBtn">New Quote</button>
+                <button class="btn btn-secondary btn-icon" id="favoriteBtn" title="Favorite">
+                    <span style="font-size: 1.3rem;">🤍</span>
+                </button>
+                <button class="btn btn-secondary btn-icon" id="copyBtn" title="Copy">
+                    <span style="font-size: 1.3rem;">📋</span>
+                </button>
+                <button class="btn btn-secondary btn-icon" id="shareBtn" title="Share">
+                    <span style="font-size: 1.3rem;">📤</span>
+                </button>
+            </div>
+        </div>
+
+        <div class="history-panel">
+            <div class="history-title">Recent Quotes</div>
+            <div class="history-items" id="historyItems"></div>
+        </div>
+
+        <div class="footer">
+            <div class="copyright">© 2025 Terry Zheng. All rights reserved.</div>
+            <div class="legal-joke">Unauthorized quote redistribution may result in cosmic karma debts and stern finger-wagging. ☝️✨</div>
+        </div>
+    </div>
+
+    <div class="notification" id="notification">Success!</div>
+
+    <script>
+        const quoteText = document.getElementById('quote');
+        const quoteAuthor = document.getElementById('author');
+        const newQuoteBtn = document.getElementById('newQuoteBtn');
+        const copyBtn = document.getElementById('copyBtn');
+        const shareBtn = document.getElementById('shareBtn');
+        const favoriteBtn = document.getElementById('favoriteBtn');
+        const notification = document.getElementById('notification');
+        const categoryBtns = document.querySelectorAll('.category-btn');
+        const historyItems = document.getElementById('historyItems');
+        const streakCount = document.getElementById('streakCount');
+        const quoteCountEl = document.getElementById('quoteCount');
+        const favoriteCountEl = document.getElementById('favoriteCount');
+        const shareMenu = document.getElementById('shareMenu');
+        const shareOptions = document.querySelectorAll('.share-option');
+        const shortcutsToggle = document.getElementById('shortcutsToggle');
+        const shortcutsPanel = document.getElementById('shortcutsPanel');
+
+        let currentTag = 'all';
+        let currentQuote = { content: '', author: '', id: '' };
+        let quoteHistory = [];
+        let favorites = new Set();
+        let stats = { streak: 0, quotesRead: 0, lastVisit: null };
+        let shareMenuOpen = false;
+
+        // Initialize particles
+        function createParticles() {
+            const particlesContainer = document.getElementById('particles');
+            for (let i = 0; i < 30; i++) {
+                const particle = document.createElement('div');
+                particle.className = 'particle';
+                const size = Math.random() * 100 + 50;
+                particle.style.width = size + 'px';
+                particle.style.height = size + 'px';
+                particle.style.left = Math.random() * 100 + '%';
+                particle.style.animationDuration = (Math.random() * 20 + 15) + 's';
+                particle.style.animationDelay = Math.random() * 5 + 's';
+                particlesContainer.appendChild(particle);
+            }
+        }
+
+        // Load stats from memory
+        function loadStats() {
+            const today = new Date().toDateString();
+            if (stats.lastVisit === today) {
+                // Same day
+            } else if (stats.lastVisit) {
+                const lastDate = new Date(stats.lastVisit);
+                const todayDate = new Date(today);
+                const diffDays = Math.floor((todayDate - lastDate) / (1000 * 60 * 60 * 24));
+                if (diffDays === 1) {
+                    stats.streak++;
+                } else {
+                    stats.streak = 1;
+                }
+            } else {
+                stats.streak = 1;
+            }
+            stats.lastVisit = today;
+            updateStatsDisplay();
+        }
+
+        function updateStatsDisplay() {
+            streakCount.textContent = stats.streak;
+            quoteCountEl.textContent = stats.quotesRead;
+            favoriteCountEl.textContent = favorites.size;
+        }
+
+        // Expanded fallback quotes - robust offline support
+        const fallbackQuotes = [
+            { content: "The only way to do great work is to love what you do.", author: "Steve Jobs" },
+            { content: "Life is what happens when you're busy making other plans.", author: "John Lennon" },
+            { content: "Be yourself; everyone else is already taken.", author: "Oscar Wilde" },
+            { content: "Innovation distinguishes between a leader and a follower.", author: "Steve Jobs" },
+            { content: "The future belongs to those who believe in the beauty of their dreams.", author: "Eleanor Roosevelt" },
+            { content: "It is during our darkest moments that we must focus to see the light.", author: "Aristotle" },
+            { content: "The only impossible journey is the one you never begin.", author: "Tony Robbins" },
+            { content: "Success is not final, failure is not fatal: it is the courage to continue that counts.", author: "Winston Churchill" },
+            { content: "Believe you can and you're halfway there.", author: "Theodore Roosevelt" },
+            { content: "The best time to plant a tree was 20 years ago. The second best time is now.", author: "Chinese Proverb" },
+            { content: "Your time is limited, don't waste it living someone else's life.", author: "Steve Jobs" },
+            { content: "The way to get started is to quit talking and begin doing.", author: "Walt Disney" },
+            { content: "Don't let yesterday take up too much of today.", author: "Will Rogers" },
+            { content: "You learn more from failure than from success. Don't let it stop you.", author: "Unknown" },
+            { content: "It's not whether you get knocked down, it's whether you get up.", author: "Vince Lombardi" },
+            { content: "People who are crazy enough to think they can change the world, are the ones who do.", author: "Rob Siltanen" },
+            { content: "Failure will never overtake me if my determination to succeed is strong enough.", author: "Og Mandino" },
+            { content: "We may encounter many defeats but we must not be defeated.", author: "Maya Angelou" },
+            { content: "Knowing is not enough; we must apply. Wishing is not enough; we must do.", author: "Johann Wolfgang Von Goethe" },
+            { content: "Whether you think you can or you think you can't, you're right.", author: "Henry Ford" },
+            { content: "The best thing to hold onto in life is each other.", author: "Audrey Hepburn" },
+            { content: "Love is composed of a single soul inhabiting two bodies.", author: "Aristotle" },
+            { content: "The purpose of our lives is to be happy.", author: "Dalai Lama" },
+            { content: "In the end, it's not the years in your life that count. It's the life in your years.", author: "Abraham Lincoln" },
+            { content: "The only true wisdom is in knowing you know nothing.", author: "Socrates" },
+            { content: "The journey of a thousand miles begins with one step.", author: "Lao Tzu" },
+            { content: "Life isn't about finding yourself. Life is about creating yourself.", author: "George Bernard Shaw" },
+            { content: "The mind is everything. What you think you become.", author: "Buddha" },
+            { content: "Happiness is not something ready made. It comes from your own actions.", author: "Dalai Lama" },
+            { content: "Do not dwell in the past, do not dream of the future, concentrate the mind on the present moment.", author: "Buddha" }
+        ];
+
+        async function fetchQuote() {
+            try {
+                newQuoteBtn.classList.add('loading');
+                
+                quoteText.classList.add('fade-out');
+                quoteAuthor.classList.add('fade-out');
+
+                await new Promise(resolve => setTimeout(resolve, 400));
+
+                let quote = null;
+                let apiUsed = 'offline';
+                
+                // Try primary API: Quotable with timeout
+                try {
+                    const controller = new AbortController();
+                    const timeoutId = setTimeout(() => controller.abort(), 5000);
+                    
+                    let url = 'https://api.quotable.io/random';
+                    if (currentTag !== 'all') {
+                        url += `?tags=${currentTag}`;
+                    }
+                    
+                    const response = await fetch(url, { signal: controller.signal });
+                    clearTimeout(timeoutId);
+                    
+                    if (response.ok) {
+                        const data = await response.json();
+                        quote = { content: data.content, author: data.author, id: data._id };
+                        apiUsed = 'Quotable API';
+                    }
+                } catch (error) {
+                    console.log('Quotable API failed:', error.message);
+                }
+                
+                // Try backup API: API Ninjas with timeout
+                if (!quote) {
+                    try {
+                        const controller = new AbortController();
+                        const timeoutId = setTimeout(() => controller.abort(), 5000);
+                        
+                        const categoryMap = {
+                            'all': 'inspirational',
+                            'motivation': 'inspirational',
+                            'love': 'love',
+                            'life': 'life',
+                            'success': 'success',
+                            'wisdom': 'wisdom',
+                            'funny': 'funny'
+                        };
+                        
+                        const category = categoryMap[currentTag] || 'inspirational';
+                        const response = await fetch(`https://api.api-ninjas.com/v1/quotes?category=${category}`, {
+                            signal: controller.signal,
+                            headers: { 'X-Api-Key': 'DEMO' }
+                        });
+                        clearTimeout(timeoutId);
+                        
+                        if (response.ok) {
+                            const data = await response.json();
+                            if (data && data.length > 0) {
+                                quote = { 
+                                    content: data[0].quote, 
+                                    author: data[0].author, 
+                                    id: Date.now().toString() 
+                                };
+                                apiUsed = 'API Ninjas';
+                            }
+                        }
+                    } catch (error) {
+                        console.log('API Ninjas failed:', error.message);
+                    }
+                }
+                
+                // Try third backup: They Said So API with timeout
+                if (!quote) {
+                    try {
+                        const controller = new AbortController();
+                        const timeoutId = setTimeout(() => controller.abort(), 5000);
+                        
+                        const response = await fetch('https://quotes.rest/qod', {
+                            signal: controller.signal
+                        });
+                        clearTimeout(timeoutId);
+                        
+                        if (response.ok) {
+                            const data = await response.json();
+                            if (data && data.contents && data.contents.quotes && data.contents.quotes.length > 0) {
+                                const quoteData = data.contents.quotes[0];
+                                quote = { 
+                                    content: quoteData.quote, 
+                                    author: quoteData.author, 
+                                    id: Date.now().toString() 
+                                };
+                                apiUsed = 'They Said So API';
+                            }
+                        }
+                    } catch (error) {
+                        console.log('They Said So API failed:', error.message);
+                    }
+                }
+                
+                // Final fallback to expanded hardcoded quotes
+                if (!quote) {
+                    const randomIndex = Math.floor(Math.random() * fallbackQuotes.length);
+                    quote = { ...fallbackQuotes[randomIndex], id: Date.now().toString() };
+                    console.log('All APIs failed - using offline quotes');
+                }
+                
+                currentQuote = quote;
+                displayQuote(currentQuote);
+                addToHistory(currentQuote);
+                stats.quotesRead++;
+                updateStatsDisplay();
+                
+                // Only show notification if using offline quotes
+                if (apiUsed === 'offline') {
+                    showNotification('📴 Offline mode - Check your connection');
+                }
+            } catch (error) {
+                console.error('Critical error:', error);
+                const randomIndex = Math.floor(Math.random() * fallbackQuotes.length);
+                currentQuote = { ...fallbackQuotes[randomIndex], id: Date.now().toString() };
+                displayQuote(currentQuote);
+                addToHistory(currentQuote);
+                stats.quotesRead++;
+                updateStatsDisplay();
+            } finally {
+                newQuoteBtn.classList.remove('loading');
+                updateFavoriteButton();
+            }
+        }
+
+        function typeWriter(element, text, speed = 30) {
+            element.textContent = '';
+            element.classList.add('typing');
+            let i = 0;
+            
+            function type() {
+                if (i < text.length) {
+                    element.textContent += text.charAt(i);
+                    i++;
+                    setTimeout(type, speed);
+                }
+            }
+            
+            type();
+        }
+
+        function displayQuote(quote) {
+            quoteText.classList.remove('fade-out');
+            quoteAuthor.classList.remove('fade-out');
+            
+            void quoteText.offsetWidth;
+            
+            quoteText.style.animation = 'none';
+            quoteAuthor.style.animation = 'none';
+            
+            setTimeout(() => {
+                typeWriter(quoteText, quote.content);
+                quoteAuthor.textContent = quote.author;
+                quoteAuthor.style.animation = 'fadeIn 0.8s ease 0.5s forwards';
+            }, 10);
+        }
+
+        function addToHistory(quote) {
+            const exists = quoteHistory.find(q => q.id === quote.id);
+            if (!exists) {
+                quoteHistory.unshift(quote);
+                if (quoteHistory.length > 12) {
+                    quoteHistory.pop();
+                }
+                renderHistory();
+            }
+        }
+
+        function renderHistory() {
+            historyItems.innerHTML = '';
+            quoteHistory.forEach(quote => {
+                const item = document.createElement('div');
+                item.className = 'history-item';
+                if (favorites.has(quote.id)) {
+                    item.classList.add('favorited');
+                }
+                item.innerHTML = `
+                    <div class="history-quote">"${quote.content}"</div>
+                    <div class="history-author">— ${quote.author}</div>
+                `;
+                item.addEventListener('click', () => {
+                    currentQuote = quote;
+                    displayQuote(quote);
+                    updateFavoriteButton();
+                    window.scrollTo({ top: 0, behavior: 'smooth' });
+                });
+                historyItems.appendChild(item);
+            });
+        }
+
+        function toggleFavorite() {
+            if (favorites.has(currentQuote.id)) {
+                favorites.delete(currentQuote.id);
+                showNotification('Removed from favorites');
+            } else {
+                favorites.add(currentQuote.id);
+                showNotification('Added to favorites! ❤️');
+            }
+            updateFavoriteButton();
+            updateStatsDisplay();
+            renderHistory();
+        }
+
+        function updateFavoriteButton() {
+            if (favorites.has(currentQuote.id)) {
+                favoriteBtn.innerHTML = '<span style="font-size: 1.3rem;">❤️</span>';
+            } else {
+                favoriteBtn.innerHTML = '<span style="font-size: 1.3rem;">🤍</span>';
+            }
+        }
+
+        function copyToClipboard() {
+            const textToCopy = `"${currentQuote.content}" — ${currentQuote.author}`;
+            
+            navigator.clipboard.writeText(textToCopy).then(() => {
+                showNotification('Copied to clipboard! 📋');
+            }).catch(err => {
+                console.error('Failed to copy:', err);
+                showNotification('Failed to copy');
+            });
+        }
+
+        function toggleShareMenu() {
+            shareMenuOpen = !shareMenuOpen;
+            if (shareMenuOpen) {
+                const btnRect = shareBtn.getBoundingClientRect();
+                shareMenu.style.top = (btnRect.bottom + 10) + 'px';
+                shareMenu.style.left = (btnRect.left - 100) + 'px';
+                shareMenu.classList.add('show');
+            } else {
+                shareMenu.classList.remove('show');
+            }
+        }
+
+        function shareToSocial(platform) {
+            const text = `"${currentQuote.content}" — ${currentQuote.author}`;
+            const encodedText = encodeURIComponent(text);
+            const url = encodeURIComponent(window.location.href);
+            
+            let shareUrl = '';
+            
+            switch(platform) {
+                case 'twitter':
+                    shareUrl = `https://twitter.com/intent/tweet?text=${encodedText}&hashtags=InspireDaily,Quotes`;
+                    break;
+                case 'facebook':
+                    shareUrl = `https://www.facebook.com/sharer/sharer.php?quote=${encodedText}&u=${url}`;
+                    break;
+                case 'linkedin':
+                    shareUrl = `https://www.linkedin.com/sharing/share-offsite/?url=${url}&summary=${encodedText}`;
+                    break;
+                case 'whatsapp':
+                    shareUrl = `https://wa.me/?text=${encodedText}`;
+                    break;
+                case 'telegram':
+                    shareUrl = `https://t.me/share/url?url=${url}&text=${encodedText}`;
+                    break;
+                case 'reddit':
+                    shareUrl = `https://reddit.com/submit?title=${encodedText}&url=${url}`;
+                    break;
+            }
+            
+            if (shareUrl) {
+                window.open(shareUrl, '_blank', 'width=600,height=400');
+                showNotification(`Sharing to ${platform}...`);
+                toggleShareMenu();
+            }
+        }
+
+        function showNotification(message) {
+            notification.textContent = message;
+            notification.classList.add('show');
+            setTimeout(() => {
+                notification.classList.remove('show');
+            }, 2500);
+        }
+
+        // Category selection
+        categoryBtns.forEach(btn => {
+            btn.addEventListener('click', () => {
+                categoryBtns.forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+                currentTag = btn.dataset.tag;
+                fetchQuote();
+            });
+        });
+
+        // Event listeners
+        newQuoteBtn.addEventListener('click', fetchQuote);
+        copyBtn.addEventListener('click', copyToClipboard);
+        shareBtn.addEventListener('click', toggleShareMenu);
+        favoriteBtn.addEventListener('click', toggleFavorite);
+
+        shareOptions.forEach(option => {
+            option.addEventListener('click', () => {
+                const platform = option.dataset.platform;
+                shareToSocial(platform);
+            });
+        });
+
+        // Close share menu when clicking outside
+        document.addEventListener('click', (e) => {
+            if (shareMenuOpen && !shareMenu.contains(e.target) && e.target !== shareBtn) {
+                toggleShareMenu();
+            }
+        });
+
+        // Shortcuts toggle
+        shortcutsToggle.addEventListener('click', () => {
+            shortcutsPanel.classList.toggle('show');
+        });
+
+        // Close shortcuts when clicking outside
+        document.addEventListener('click', (e) => {
+            if (!shortcutsPanel.contains(e.target) && e.target !== shortcutsToggle) {
+                shortcutsPanel.classList.remove('show');
+            }
+        });
+
+        // Keyboard shortcuts
+        document.addEventListener('keydown', (e) => {
+            if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') return;
+            
+            if (e.key === 'n' || e.key === 'N') {
+                fetchQuote();
+            } else if (e.key === 'c' || e.key === 'C') {
+                copyToClipboard();
+            } else if (e.key === 'f' || e.key === 'F') {
+                toggleFavorite();
+            } else if (e.key === 's' || e.key === 'S') {
+                e.preventDefault();
+                toggleShareMenu();
+            }
+        });
+
+        // Initialize
+        createParticles();
+        loadStats();
+        fetchQuote();
+    </script>
+</body>
+</html>
